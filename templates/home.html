@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Ask Marcus</title>
+  </head>
+  <body>
+    <h1>Ask Marcus</h1>
+    <p>
+        Have a chat with Marcus Aurelius, former emporer of Rome
+    </p>
+    <label for="textbox">Enter your question:</label> <br/>
+    <textarea id="question_input" name="textbox" rows="3" cols="100"></textarea> <br/> <br/>
+    <button onclick="askQuestion()">Ask Marcus!</button>
+    <div id="question_section"></div>
+    <div id="history_section"></div>
+    <script>
+        const question = document.getElementById('question_input');
+        const questionSection = document.getElementById("question_section");
+        const historySection = document.getElementById("history_section");
+
+        let lastQA = null;
+        const history = [];
+
+        async function askQuestion() {
+
+            let q = question.value;
+
+            if (lastQA != null) {
+                history.push([lastQA.question, lastQA.answer]);
+            }
+
+            const res = await fetch('https://marcusapp.azurewebsites.net/ask_marcus',{
+                method:'POST',
+                headers : {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    history,
+                    question: q
+                })
+            });
+
+            const data = await res.json();
+            lastQA = {"question": data.question, "answer": data.answer};
+            populateHistorySection();
+            populateQuestionSection();
+        }
+
+        function populateHistorySection() {
+            historySection.innerHTML = ""
+            for(let i=0;i < history.length; ++i) {
+                const qp = document.createElement('p');
+                const ap = document.createElement('p');
+                qp.innerText = "Q: " + history[i][0];
+                ap.innerText = "A: " + history[i][1];
+                historySection.appendChild(qp);
+                historySection.appendChild(ap);
+            }
+        }
+
+        function populateQuestionSection() {
+            const question = lastQA.question;
+            const answer = lastQA.answer;
+            questionSection.innerHTML = "";
+            const qp = document.createElement('p');
+            const ap = document.createElement('p');
+            qp.innerText="Question: " + question;
+            ap.innerText="Answer: " + answer;
+            questionSection.appendChild(qp);
+            questionSection.appendChild(ap);
+        }
+  
+      </script>
+  </body>
+</html>

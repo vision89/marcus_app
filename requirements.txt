@@ -1,0 +1,9 @@
+openai
+python-dotenv
+langchain_openai
+langchain-pinecone
+langchain
+langchain-community
+chardet
+flask
+Flask-Cors
